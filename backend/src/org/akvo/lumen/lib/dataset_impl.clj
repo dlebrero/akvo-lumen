@@ -28,7 +28,7 @@
         order-by-expr (str/join "," sort-columns)
         sql (format "SELECT %s FROM %s ORDER BY %s"
                     (str/join "," column-names)
-                    table-name
+                    (str "dataset." table-name)
                     order-by-expr)]
     sql))
 

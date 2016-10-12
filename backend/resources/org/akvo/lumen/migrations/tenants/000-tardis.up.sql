@@ -1,5 +1,5 @@
 CREATE SCHEMA history;
--- ;;
+--;;
 
 
 CREATE FUNCTION history.log_change() RETURNS trigger AS $_$

@@ -22,11 +22,11 @@
                     (str " " c-type)
                     ""))))))
 
-(defn- gen-table-name
+#_(defn- gen-table-name
   []
   (str "ds_" (s/replace (UUID/randomUUID) #"-" "_")))
 
-(defn get-create-table-sql
+#_(defn get-create-table-sql
   "Returns a `CREATE TABLE` statement for
   the given number table name and number of columns"
   [t-name num-cols c-type temp?]
@@ -35,6 +35,20 @@
           t-name
           (if temp? "rnum serial primary key" "rnum integer primary key")
           (get-cols num-cols c-type)))
+
+(defn get-create-table-sql
+  "Returns a `CREATE TABLE` statement for
+  the given number table name and number of columns"
+  [t-name num-cols c-type temp?]
+  (if temp?
+    (format "CREATE TEMP TABLE %s (%s, %s)"
+            t-name
+            (if temp? "rnum serial primary key" "rnum integer primary key")
+            (get-cols num-cols c-type))
+    (format "CREATE TABLE dataset.%s (%s, %s)"
+            t-name
+            (if temp? "rnum serial primary key" "rnum integer primary key")
+            (get-cols num-cols c-type))))
 
 (defn get-copy-sql
   "Returns a `COPY` statement for the given
@@ -53,7 +67,7 @@
   (let [cols (for [i (range 1 (inc num-cols))]
                (str "c" i))
         src-cols (map #(format "to_json(replace(%s, '\\', '\\\\'))::jsonb" %) cols)]
-    (format "INSERT INTO %s (rnum, %s) SELECT rnum, %s FROM %s"
+    (format "INSERT INTO dataset.%s (rnum, %s) SELECT rnum, %s FROM %s"
             dest-table
             (s/join ", " cols)
             (s/join ", " src-cols)
@@ -62,7 +76,7 @@
 (defn get-vacuum-sql
   "Returns a `VACUUM` statement for a given table"
   [table-name]
-  (format "VACUUM (FULL) %s" table-name))
+  (format "VACUUM (FULL) dataset.%s" table-name))
 
 (defn get-drop-table-sql
   "Returns a `DROP TABLE` statement for a given table"
@@ -124,7 +138,6 @@
                         (last (s/split url #"\/"))
                         "/file")
                    url))))
-
 
 (defmethod import/make-dataset-data-table "CSV"
   [tenant-conn {:keys [file-upload-path]} table-name spec]

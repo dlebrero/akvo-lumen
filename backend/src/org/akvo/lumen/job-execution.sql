@@ -18,9 +18,9 @@ VALUES (:id, :dataset-id, :job-execution-id, :table-name, :imported-table-name, 
 
 -- :name clone-data-table :! :n
 -- :doc Clone a data table
-CREATE TABLE :i:to-table (LIKE :i:from-table INCLUDING ALL);
-INSERT INTO :i:to-table SELECT * FROM :i:from-table;
-VACUUM ANALYZE :i:to-table;
+CREATE TABLE dataset.:i:to-table (LIKE dataset.:i:from-table INCLUDING ALL);
+INSERT INTO dataset.:i:to-table SELECT * FROM dataset.:i:from-table;
+VACUUM ANALYZE dataset.:i:to-table;
 
 -- :name data-source-spec-by-job-execution-id :? :1
 -- :doc Get the data source spec by job execution id
@@ -64,4 +64,3 @@ SELECT status
 DELETE
   FROM job_execution
  WHERE id = :id AND status = 'FAILED'
-

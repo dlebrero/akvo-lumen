@@ -15,7 +15,17 @@
                           (bit-and 0x00000000ffffffff msb))]
     (java.util.UUID. timed-msb lsb)))
 
-(defn gen-table-name
+#_(defn gen-table-name
   "Generates a table name using a UUID suffix"
   [prefix]
   (str prefix "_" (str/replace (java.util.UUID/randomUUID) "-" "_")))
+
+
+(defn gen-table-name
+  "Generates a table name using a UUID suffix"
+  ([prefix]
+   (str prefix "_" (str/replace (java.util.UUID/randomUUID) "-" "_")))
+  ([namespace prefix]
+   (str
+    (case namespace :temp "" (str namespace "."))
+    prefix "_" (str/replace (java.util.UUID/randomUUID) "-" "_"))))

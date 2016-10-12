@@ -17,7 +17,7 @@
 
 (defn successful-import [conn job-execution-id table-name status spec]
   (let [dataset-id (squuid)
-        imported-table-name (gen-table-name "imported")]
+        imported-table-name (gen-table-name :temp "imported")]
     (insert-dataset conn {:id dataset-id
                           :title (get spec "name") ;; TODO Consistent naming. Change on client side?
                           :description (get spec "description" "")})
@@ -40,7 +40,6 @@
                                                     :direction nil
                                                     :hidden false})
                                                  (:columns status))})
-
     (update-successful-job-execution conn {:id job-execution-id})))
 
 (defn failed-import [conn job-execution-id reason]
@@ -49,13 +48,14 @@
 
 (defn do-import [conn config job-execution-id]
   (try
-    (let [table-name (gen-table-name "ds")
+    (let [table-name (gen-table-name :temp "ds")
           spec (:spec (data-source-spec-by-job-execution-id conn {:job-execution-id job-execution-id}))
           status (import/make-dataset-data-table conn config table-name (get spec "source"))]
       (if (:success? status)
         (successful-import conn job-execution-id table-name status spec)
         (failed-import conn job-execution-id (:reason status))))
     (catch Exception e
+      (clojure.pprint/pprint e)
       (failed-import conn job-execution-id (str "Unknown error: " (.getMessage e)))
       (.printStackTrace e))))
 
