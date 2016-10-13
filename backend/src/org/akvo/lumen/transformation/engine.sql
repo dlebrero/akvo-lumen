@@ -26,8 +26,7 @@ CREATE INDEX IF NOT EXISTS :i:index-name
 DROP INDEX IF EXISTS :i:index-name CASCADE
 
 -- :name db-change-data-type :<! :1
-SELECT lumen_change_data_type(:table-name, :args, :on-error)
-
+SELECT dataset.lumen_change_data_type(:table-name, :args, :on-error)
 
 -- :name db-filter-column :! :n
 -- :doc TODO this filter only works on text columns (see the cast ::text)

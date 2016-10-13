@@ -257,7 +257,7 @@
   (try
     (let [dataset-version (latest-dataset-version-by-dataset-id tenant-conn {:dataset-id dataset-id})
           columns (vec (:columns dataset-version))
-          source-table (str "dataset." (:table-name dataset-version))]
+          source-table (:table-name dataset-version)]
       (let [{:keys [success? message columns execution-log]} (apply-operation tenant-conn
                                                                               source-table
                                                                               columns

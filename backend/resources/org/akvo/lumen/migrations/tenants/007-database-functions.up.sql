@@ -65,7 +65,7 @@ $$
   LANGUAGE plpgsql IMMUTABLE STRICT;
 
 
-CREATE OR REPLACE FUNCTION lumen_change_data_type(tbl_name text, args jsonb, on_error text)
+CREATE OR REPLACE FUNCTION dataset.lumen_change_data_type(tbl_name text, args jsonb, on_error text)
   RETURNS jsonb AS
 $$
 DECLARE
@@ -118,14 +118,14 @@ BEGIN
   END IF;
 
 
-  select_sql = format('SELECT rnum, %I FROM %I ORDER BY rnum FOR UPDATE', col_name, tbl_name);
-  delete_sql = format('DELETE FROM %I WHERE %I = $1', tbl_name, col_name);
-  update_sql = format('UPDATE %I SET %I = $1 WHERE rnum = $2', tbl_name, col_name);
+  select_sql = format('SELECT rnum, %I FROM dataset.%I ORDER BY rnum FOR UPDATE', col_name, tbl_name);
+  delete_sql = format('DELETE FROM dataset.%I WHERE %I = $1', tbl_name, col_name);
+  update_sql = format('UPDATE dataset.%I SET %I = $1 WHERE rnum = $2', tbl_name, col_name);
 
   IF new_type = 'date' THEN
-    change_sql = format('UPDATE %I SET %I = lumen_to_date(%I, $1) WHERE rnum = $2', tbl_name, col_name, col_name);
+    change_sql = format('UPDATE dataset.%I SET %I = lumen_to_date(%I, $1) WHERE rnum = $2', tbl_name, col_name, col_name);
   ELSE
-    change_sql = format('UPDATE %I SET %I = lumen_to_%s(%I) WHERE rnum = $1', tbl_name, col_name, new_type, col_name);
+    change_sql = format('UPDATE dataset.%I SET %I = lumen_to_%s(%I) WHERE rnum = $1', tbl_name, col_name, new_type, col_name);
   END IF;
 
 
