@@ -262,8 +262,6 @@
                                                                               source-table
                                                                               columns
                                                                               transformation)]
-        (println "@execute-transformation")
-        (println success?)
         (if success?
           (let [new-dataset-version-id (str (util/squuid))]
             (clear-dataset-version-data-table tenant-conn {:id (:id dataset-version)})
