@@ -101,7 +101,7 @@
 (defmethod apply-operation :core/to-titlecase
   [tenant-conn table-name columns op-spec]
   (db-to-titlecase tenant-conn {:table-name table-name
-                                 :column-name (get-column-name op-spec)})
+                                :column-name (get-column-name op-spec)})
   {:success? true
    :columns columns})
 
@@ -257,11 +257,19 @@
   (try
     (let [dataset-version (latest-dataset-version-by-dataset-id tenant-conn {:dataset-id dataset-id})
           columns (vec (:columns dataset-version))
-          source-table (:table-name dataset-version)]
+          schema "dataset"
+          source-table (:table-name dataset-version)
+          qualified-source-table (format "%s.%s" schema source-table)]
+
+      (println "@execute-transformation-1")
+      (prn source-table)
       (let [{:keys [success? message columns execution-log]} (apply-operation tenant-conn
-                                                                              source-table
+                                                                              qualified-source-table
                                                                               columns
                                                                               transformation)]
+        (println "@execute-transformation-2")
+        (clojure.pprint/pprint message)
+        (clojure.pprint/pprint execution-log)
         (if success?
           (let [new-dataset-version-id (str (util/squuid))]
             (clear-dataset-version-data-table tenant-conn {:id (:id dataset-version)})
