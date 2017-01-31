@@ -12,6 +12,7 @@ const entry = {
     ] : [
       'webpack-dev-server/client?http://0.0.0.0:3030', // WebpackDevServer host and port
       'webpack/hot/only-dev-server', // "only" prevents reload on syntax errors
+      'react-hot-loader/patch',
       './src/index.jsx'
     ],
   pub: './src/index-pub.jsx'
@@ -33,7 +34,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: isProd ? ['babel-loader'] : ['react-hot-loader', 'babel-loader']
+        use: ['babel-loader']
       },
       {
         test: /\.scss$/,
