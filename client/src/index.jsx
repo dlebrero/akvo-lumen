@@ -32,7 +32,9 @@ function initAuthenticated(profile) {
   }
   doRender(Root);
   if (module.hot) {
-    module.hot.accept(() => doRender(require('./containers/Root').default))
+    /* eslint-disable global-require */
+    module.hot.accept('./containers/Root', () => doRender(require('./containers/Root').default));
+    /* eslint-enable global-require */
   }
 }
 
