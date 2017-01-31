@@ -26,7 +26,6 @@
     "datalib": "^1.7.3",
     "enzyme": "^2.6.0",
     "esprima": "^3.1.2",
-    "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
     "fixed-data-table": "^0.6.3",
     "history": "^4.4.1",
@@ -84,7 +83,7 @@
     "react-addons-test-utils": "^15.4.1",
     "react-hot-loader": "^1.3.1",
     "system-bell-webpack-plugin": "^1.0.0",
-    "webpack": "^1.13.3",
+    "webpack": "^2.2.0",
     "webpack-dev-server": "^1.16.2"
   },
   "babel": {
@@ -97,7 +96,7 @@
       }
     },
     "presets": [
-      "es2015",
+      ["es2015", {"modules": false}],
       "react"
     ],
     "plugins": [

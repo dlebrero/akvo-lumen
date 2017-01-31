@@ -3,7 +3,6 @@
 var webpack = require('webpack');
 var path = require('path');
 var SystemBellPlugin = require('system-bell-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -18,8 +17,6 @@ const entry = {
   pub: './src/index-pub.jsx'
 }
 
-const jsLoaders = isProd ? ['babel-loader'] : ['react-hot', 'babel-loader'];
-
 module.exports = {
   entry: entry,
   devtool: 'source-map',
@@ -29,32 +26,29 @@ module.exports = {
     publicPath: '/assets/'
   },
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['.js', '.jsx']
   },
   module: {
-    preLoaders: [
-      {
-        test: /\.json$/,
-        loader: 'json'
-      },
-    ],
-    loaders: [
+    rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loaders: jsLoaders
+        use: isProd ? ['babel-loader'] : ['react-hot-loader', 'babel-loader']
       },
       {
         test: /\.scss$/,
-        loader: 'style-loader!css-loader!sass-loader'
+        use: ['style-loader', 'css-loader', 'sass-loader']
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader'
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(png|jpg)$/,
-        loader: 'url-loader?limit=8192'
+        use: [{
+          loader: 'url-loader',
+          options: { limit: 8192 }
+        }]
       },
     ]
   },
