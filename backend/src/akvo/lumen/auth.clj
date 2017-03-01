@@ -1,10 +1,71 @@
 (ns akvo.lumen.auth
-  (:require [akvo.commons.jwt :as jwt]
-            [cheshire.core :as json]
-            [clj-http.client :as client]
-            [clojure.set :as set]
-            [clojure.string :as s]
-            [ring.util.response :as response]))
+  (:require
+    [clojure.string :as s]
+    [ring.util.response :as response]
+    [clojure.java.io :as io]
+    [compojure.core :refer (defroutes GET)]
+    [immutant.web.internal.undertow :as undertow])
+  (:import io.undertow.security.api.AuthenticationMode
+           [io.undertow.security.handlers AuthenticationCallHandler
+                                          AuthenticationConstraintHandler AuthenticationMechanismsHandler
+                                          SecurityInitialHandler]
+           [io.undertow.security.idm IdentityManager Account Credential]
+           [io.undertow.security.impl CachedAuthenticatedSessionMechanism]
+           io.undertow.server.HttpServerExchange
+           [io.undertow.server.session InMemorySessionManager]
+           [org.keycloak.adapters KeycloakDeploymentBuilder AdapterDeploymentContext
+                                  NodesRegistrationManagement RefreshableKeycloakSecurityContext]
+           [org.keycloak.adapters.undertow UndertowUserSessionManagement
+                                           UndertowAuthenticationMechanism UndertowPreAuthActionsHandler
+                                           UndertowAuthenticatedActionsHandler OIDCUndertowHttpFacade]))
+
+(def idm (reify IdentityManager
+           (^Account verify [_ ^Account account]
+             account)
+           (^Account verify [_ ^String id ^Credential credential]
+             (throw (IllegalStateException. "Should never be called in Keycloak flow")))
+           (^Account verify [_ ^Credential credential]
+             (throw (IllegalStateException. "Should never be called in Keycloak flow")))))
+
+(defn auth-constraint
+  [handler]
+  (proxy [AuthenticationConstraintHandler] [handler]
+    (isAuthenticationRequired [^HttpServerExchange exchange]
+      (let [path (.getRequestPath exchange)]
+        (not (.startsWith path "/env"))))))
+
+(defn wrap-backwards-compatible-jwt-like [handler]
+  (fn [request]
+    (if-let [token (some-> request
+                           ^io.undertow.server.HttpServerExchange (get :server-exchange)
+                           ^RefreshableKeycloakSecurityContext (.getAttachment OIDCUndertowHttpFacade/KEYCLOAK_SECURITY_CONTEXT_KEY)
+                           (.getToken))]
+      (handler (assoc request :jwt-claims {"name" (.getName token)
+                                           "subject" (.getSubject token)
+                                           "realm_access" {"roles" (some-> token .getRealmAccess .getRoles)}}))
+      (handler request))))
+
+(defn wrap-jwt [handler _]
+  (let [session-manager (InMemorySessionManager. "SESSION_MANAGER")
+        deployment (KeycloakDeploymentBuilder/build (io/input-stream (io/resource "keycloak.json")))
+        deployment-context (AdapterDeploymentContext. deployment)
+        session-management (UndertowUserSessionManagement.)
+        nodes-management (NodesRegistrationManagement.)
+        auth-mechanisms [(CachedAuthenticatedSessionMechanism.)
+                         (UndertowAuthenticationMechanism. deployment-context
+                                                           session-management
+                                                           nodes-management
+                                                           -1
+                                                           nil)]
+        ]
+    (.registerSessionListener session-manager session-management)
+    (-> (undertow/create-http-handler (wrap-backwards-compatible-jwt-like handler))
+        (AuthenticationCallHandler.)
+        (auth-constraint)
+        (AuthenticationMechanismsHandler. auth-mechanisms)
+        (->> (UndertowAuthenticatedActionsHandler. deployment-context)
+             (UndertowPreAuthActionsHandler. deployment-context session-management session-manager)
+             (SecurityInitialHandler. AuthenticationMode/PRO_ACTIVE idm)))))
 
 (defn claimed-roles [jwt-claims]
   (set (get-in jwt-claims ["realm_access" "roles"])))
@@ -57,17 +118,3 @@
                             (handler request)
                             not-authorized)
       :else not-authorized)))
-
-(defn wrap-jwt
-  "Go get cert from Keycloak and feed it to wrap-jwt-claims. Keycloak url can
-  be configured via the KEYCLOAK_URL env var."
-  [handler {:keys [keycloak-url keycloak-realm]}]
-  (try
-    (let [issuer (str keycloak-url "/realms/" keycloak-realm)
-          certs (-> (str issuer "/protocol/openid-connect/certs")
-                    client/get
-                    :body)]
-      (jwt/wrap-jwt-claims handler (jwt/rsa-key certs 0) issuer))
-    (catch Exception e
-      (println "Could not get cert from Keycloak")
-      (throw e))))

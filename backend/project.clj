@@ -24,11 +24,13 @@
                  [org.immutant/scheduling "2.1.5" :exclusions [ch.qos.logback/logback-classic]]
                  [org.immutant/web "2.1.5"]
                  [org.postgresql/postgresql "9.4.1212"]
-                 [org.slf4j/slf4j-nop "1.7.21"]
+                 ;  [org.slf4j/slf4j-nop "1.7.21"]
+                 [ch.qos.logback/logback-classic "1.2.1"]
                  [ragtime/ragtime.jdbc "0.6.3"]
                  [ring "1.5.0"]
                  [ring/ring-defaults "0.2.1"]
-                 [ring/ring-json "0.4.0"]]
+                 [ring/ring-json "0.4.0"]
+                 [org.keycloak/keycloak-undertow-adapter "2.5.1.Final"]]
   :uberjar-name "akvo-lumen.jar"
   :repl-options {:timeout 120000}
   ;; :pedantic? :abort
