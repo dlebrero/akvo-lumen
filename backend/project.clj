@@ -30,7 +30,8 @@
                  [ring "1.5.0"]
                  [ring/ring-defaults "0.2.1"]
                  [ring/ring-json "0.4.0"]
-                 [org.keycloak/keycloak-undertow-adapter "2.5.1.Final"]]
+                 [org.keycloak/keycloak-undertow-adapter "2.5.1.Final"]
+                 [org.keycloak/keycloak-authz-client "2.5.1.Final"]]
   :uberjar-name "akvo-lumen.jar"
   :repl-options {:timeout 120000}
   ;; :pedantic? :abort

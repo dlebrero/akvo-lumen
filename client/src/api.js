@@ -4,7 +4,16 @@ import * as auth from './auth';
 function wrapUpdateToken(fetchRequestThunk) {
   return auth.token()
     .then(token => fetchRequestThunk(token))
-    .then(response => response.json());
+    .then(response => {
+              if (response.status === 401) {
+                 return new Promise((resolve, reject) => {
+//                 TODO: check header exists, reuse the rpt token. Maybe rpt needs to be refreshed???
+                   auth.au().authorize(response.headers.get('www-authenticate')).then(function (rpt) {
+                    fetchRequestThunk(rpt).then(response => resolve(response.json()));
+                 })});
+              } else {
+                 return response.json();
+                 }});
 }
 
 function requestHeaders(token, additionalHeaders = {}) {

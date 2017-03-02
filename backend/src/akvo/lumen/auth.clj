@@ -32,6 +32,7 @@
   (proxy [AuthenticationConstraintHandler] [handler]
     (isAuthenticationRequired [^HttpServerExchange exchange]
       (let [path (.getRequestPath exchange)]
+        ;; TODO: look at public-path?
         (not (.startsWith path "/env"))))))
 
 (defn wrap-backwards-compatible-jwt-like [handler]
@@ -44,6 +45,16 @@
                                            "subject" (.getSubject token)
                                            "realm_access" {"roles" (some-> token .getRealmAccess .getRoles)}}))
       (handler request))))
+
+;; Workaround: the authz filter throws an exception when trying to write a error response at io.undertow.server.HttpServerExchange.getOutputStream
+;; Proper fix: for org.keycloak.adapters.undertow.UndertowHttpFacade.ResponseFacade.sendError(int, java.lang.String)
+;;             to call this.getOutputStream() instead of exchange.getOutputStream()
+(defn start-blocking [handler]
+  (reify io.undertow.server.HttpHandler
+    (handleRequest [this exchange]
+      (when (not (.isBlocking exchange))
+        (.startBlocking exchange))
+      (.handleRequest handler exchange))))
 
 (defn wrap-jwt [handler _]
   (let [session-manager (InMemorySessionManager. "SESSION_MANAGER")
@@ -59,13 +70,16 @@
                                                            nil)]
         ]
     (.registerSessionListener session-manager session-management)
-    (-> (undertow/create-http-handler (wrap-backwards-compatible-jwt-like handler))
-        (AuthenticationCallHandler.)
-        (auth-constraint)
-        (AuthenticationMechanismsHandler. auth-mechanisms)
-        (->> (UndertowAuthenticatedActionsHandler. deployment-context)
-             (UndertowPreAuthActionsHandler. deployment-context session-management session-manager)
-             (SecurityInitialHandler. AuthenticationMode/PRO_ACTIVE idm)))))
+    (as-> (wrap-backwards-compatible-jwt-like handler) $
+          (undertow/create-http-handler $)
+          (UndertowAuthenticatedActionsHandler. deployment-context $) ;; this guy just works if the session is already in the HttpRequest.
+                                                                      ;; Does nothing otherwise: AuthenticatedActionsHandler.java:146
+          (AuthenticationCallHandler. $)                    ;; needed?
+          (auth-constraint $)
+          (AuthenticationMechanismsHandler. $ auth-mechanisms)
+          (UndertowPreAuthActionsHandler. deployment-context session-management session-manager $)
+          (start-blocking $)
+          (SecurityInitialHandler. AuthenticationMode/PRO_ACTIVE idm $))))
 
 (defn claimed-roles [jwt-claims]
   (set (get-in jwt-claims ["realm_access" "roles"])))

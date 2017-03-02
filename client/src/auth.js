@@ -2,6 +2,7 @@ import fetch from 'isomorphic-fetch';
 import Keycloak from 'keycloak-js';
 
 let keycloak = null;
+let authorization = null;
 
 export function token() {
   if (keycloak == null) {
@@ -13,6 +14,10 @@ export function token() {
       .success(() => resolve(keycloak.token))
       .error(err => reject(err))
   );
+}
+
+export function au() {
+  return authorization;
 }
 
 export function init() {
@@ -27,9 +32,12 @@ export function init() {
             realm: 'akvo',
             clientId: keycloakClient,
           });
+
           keycloak.init({ onLoad: 'login-required' }).success((authenticated) => {
             if (authenticated) {
               keycloak.loadUserProfile().success((profile) => {
+
+                authorization = new KeycloakAuthorization(keycloak);
                 resolve(Object.assign(
               {},
               profile,
