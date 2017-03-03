@@ -1,13 +1,10 @@
 {
   "realm": "akvo",
-  "bearer-only": true,
+  "bearer-only": false,
   "auth-server-url": "http://localhost:8080/auth",
   "ssl-required": "external",
   "resource": "akvo-lumen-confidential",
   "credentials": {
     "secret": "caed3964-09dd-4752-b0bb-22c8e8ffd631"
-  },
-  "policy-enforcer": {
-    "user-managed-access" : {}
   }
 }

@@ -9,8 +9,3 @@ export default function NavWorkspaceSwitch({ profile }) {
   );
 }
 
-NavWorkspaceSwitch.propTypes = {
-  profile: PropTypes.shape({
-    admin: PropTypes.bool.isRequired,
-  }).isRequired,
-};

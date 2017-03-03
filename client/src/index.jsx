@@ -19,6 +19,4 @@ function initNotAuthenticated(msg) {
   document.querySelector('#root').innerHTML = msg;
 }
 
-auth.init()
-  .then(profile => initAuthenticated(profile))
-  .catch(err => initNotAuthenticated(err.message));
+initAuthenticated({});
