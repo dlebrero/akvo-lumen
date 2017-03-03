@@ -9,6 +9,7 @@ function wrapUpdateToken(fetchRequestThunk) {
                  return new Promise((resolve, reject) => {
 //                 TODO: check header exists, reuse the rpt token. Maybe rpt needs to be refreshed???
                    auth.au().authorize(response.headers.get('www-authenticate')).then(function (rpt) {
+                    auth.setToken(rpt);
                     fetchRequestThunk(rpt).then(response => resolve(response.json()));
                  })});
               } else {

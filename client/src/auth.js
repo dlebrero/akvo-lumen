@@ -16,6 +16,14 @@ export function token() {
   );
 }
 
+export function setToken(rpt) {
+  if (keycloak == null) {
+    throw new Error('Keycloak not initialized');
+  }
+
+  keycloak.token = rpt;
+}
+
 export function au() {
   return authorization;
 }
