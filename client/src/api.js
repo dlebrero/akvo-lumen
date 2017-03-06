@@ -23,6 +23,7 @@ export function get(url, queryParams, headers) {
 
   return wrapUpdateToken(token =>
     fetch(urlWithOptionalParams, {
+      credentials: 'same-origin',
       method: 'GET',
       headers: requestHeaders(token, headers),
     })
@@ -32,6 +33,7 @@ export function get(url, queryParams, headers) {
 export function post(url, body, headers) {
   return wrapUpdateToken(token =>
     fetch(url, {
+      credentials: 'same-origin',
       method: 'POST',
       headers: requestHeaders(token, headers),
       body: JSON.stringify(body),
@@ -42,6 +44,7 @@ export function post(url, body, headers) {
 export function put(url, body, headers) {
   return wrapUpdateToken(token =>
     fetch(url, {
+      credentials: 'same-origin',
       method: 'PUT',
       headers: requestHeaders(token, headers),
       body: JSON.stringify(body),
@@ -52,6 +55,7 @@ export function put(url, body, headers) {
 export function del(url, headers) {
   return wrapUpdateToken(token =>
     fetch(url, {
+      credentials: 'same-origin',
       method: 'DELETE',
       headers: requestHeaders(token, headers),
     })
