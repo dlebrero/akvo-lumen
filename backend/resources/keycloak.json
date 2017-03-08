@@ -6,5 +6,22 @@
   "resource": "akvo-lumen-confidential",
   "credentials": {
     "secret": "caed3964-09dd-4752-b0bb-22c8e8ffd631"
+  },
+  "policy-enforcer": {
+    "user-managed-access" : {},
+    "paths": [
+      {
+        "path" : "/api/library",
+        "methods" : [
+          {
+            "method": "POST",
+            "scopes" : ["urn:lumen:scopes:dashboard:create"]
+          },
+          {
+            "method": "GET",
+            "scopes" : ["urn:lumen:scopes:dashboard:view"]
+          }
+        ]
+      }]
   }
 }
