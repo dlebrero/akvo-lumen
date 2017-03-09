@@ -22,6 +22,47 @@
             "scopes" : ["urn:lumen:scopes:dashboard:view"]
           }
         ]
+      },
+      {
+        "path" : "/api/dashboards/*",
+        "methods" : [
+          {
+            "method": "DELETE",
+            "scopes" : ["urn:lumen:scopes:dashboard:delete"]
+          },
+          {
+            "method": "GET",
+            "scopes" : ["urn:lumen:scopes:dashboard:view"]
+          }
+        ]
+      },
+      {
+        "name" : "Dashboard Resource",
+        "path" : "/api/dashboards/{id}",
+        "methods" : [
+          {
+            "method": "DELETE",
+            "scopes" : ["urn:lumen:scopes:dashboard:delete"]
+          },
+          {
+            "method": "GET",
+            "scopes" : ["urn:lumen:scopes:dashboard:view"]
+          }
+        ]
+      },
+      {
+        "name" : "Datasets",
+        "path" : "/api/datasets/*",
+        "methods" : [
+          {
+            "method": "DELETE",
+            "scopes" : ["urn:lumen:scopes:dashboard:delete"]
+          },
+          {
+            "method": "GET",
+            "scopes" : ["urn:lumen:scopes:dashboard:view"]
+          }
+        ]
       }]
   }
 }
