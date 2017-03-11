@@ -1,3 +1,8 @@
+// Given a uri like /tenant/1/team/2/folder/4 it will grant access if
+// the user has one of the following roles:
+//      * tenant:1:team:2:folder:4
+//      * tenant:1:team:2
+//      * tenant:1
 var uri = $evaluation.getPermission().getResource().getUri();
 print("Starting for " + uri);
 var identity = $evaluation.getContext().getIdentity();
