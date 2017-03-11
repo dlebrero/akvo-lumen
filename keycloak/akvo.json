@@ -2499,53 +2499,54 @@
     "useTemplateScope" : false,
     "useTemplateMappers" : false,
     "authorizationSettings" : {
-      "allowRemoteResourceManagement" : true,
-      "policyEnforcementMode" : "ENFORCING",
-      "resources" : [ {
-        "name" : "/library",
-        "uri" : "/api/library",
-        "type" : "webpage",
-        "typedScopes" : [ ]
-      } ],
-      "policies" : [ {
-        "name" : "policy1",
-        "type" : "role",
-        "logic" : "POSITIVE",
-        "decisionStrategy" : "UNANIMOUS",
-        "config" : {
-          "roles" : "[{\"id\":\"akvo:lumen:t1:admin\",\"required\":true}]"
+      "allowRemoteResourceManagement": true,
+      "policyEnforcementMode": "ENFORCING",
+      "resources": [
+        {
+          "name": "/library",
+          "uri": "/api/library",
+          "type": "webpage",
+          "scopes": [
+            {
+              "name": "urn:lumen:scopes:dashboard:create"
+            },
+            {
+              "name": "urn:lumen:scopes:dashboard:view"
+            }
+          ],
+          "typedScopes": []
         }
-      }, {
-        "name" : "public",
-        "type" : "js",
-        "logic" : "POSITIVE",
-        "decisionStrategy" : "UNANIMOUS",
-        "config" : {
-          "code" : "$evaluation.grant();"
+      ],
+      "policies": [
+        {
+          "name": "policy1",
+          "type": "role",
+          "logic": "POSITIVE",
+          "decisionStrategy": "UNANIMOUS",
+          "config": {
+            "roles": "[{\"id\":\"akvo:lumen:t1:admin\",\"required\":true}]"
+          }
+        },
+        {
+          "name": "resource-perm1",
+          "type": "resource",
+          "logic": "POSITIVE",
+          "decisionStrategy": "UNANIMOUS",
+          "config": {
+            "resources": "[\"/library\"]",
+            "applyPolicies": "[\"policy1\"]"
+          }
         }
-      }, {
-        "name" : "resource-perm1",
-        "type" : "resource",
-        "logic" : "POSITIVE",
-        "decisionStrategy" : "UNANIMOUS",
-        "config" : {
-          "resources" : "[\"/library\"]",
-          "applyPolicies" : "[\"policy1\"]"
+      ],
+      "scopes": [
+        {
+          "name": "urn:lumen:scopes:dashboard:view"
+        },
+        {
+          "name": "urn:lumen:scopes:dashboard:create"
         }
-      }, {
-        "name" : "public stuff",
-        "type" : "resource",
-        "logic" : "POSITIVE",
-        "decisionStrategy" : "UNANIMOUS",
-        "config" : {
-          "defaultResourceType" : "public",
-          "applyPolicies" : "[\"public\"]",
-          "default" : "true"
-        }
-      } ],
-      "scopes" : [ ]
-    }
-  }, {
+      ]
+    }  }, {
     "id" : "62fc9e59-1492-42a1-8b58-a4a3c10366d1",
     "clientId" : "broker",
     "name" : "${client_broker}",
