@@ -102,6 +102,10 @@
               :permissions)))
 
   ;; Several entitlements
+  ;; Performance seems reasonable unless:
+  ;;     * there is a resource-type permission
+  ;;     * you ask for a resource that does not exists
+  ;; In either case, KeyCloak loads all the resources. Probably a bug in both cases.
   (let [token (user-token)
         entitlement-request (reduce (fn [^EntitlementRequest ent uri]
                                       (doto ent (.addPermission
